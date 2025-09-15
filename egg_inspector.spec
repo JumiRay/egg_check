@@ -3,7 +3,7 @@
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 from PyInstaller.utils.hooks.qt import add_qt5_dependencies
 
-entry = "client/main.py"
+entry = "main.py"
 
 # Qt & 依赖
 qt_datas = collect_data_files('PySide6', include_py_files=True)
@@ -20,10 +20,10 @@ hiddenimports += collect_submodules('ultralytics')
 
 # 数据文件：把模型文件复制到可执行文件同目录（'.'）
 datas = [
-    ('client/segment.pt', '.'),
-    ('client/ns_ok.pt', '.'),
-    ('client/ok_regressor_hgbr.joblib', '.'),
-    ('client/best_tf_efficientnet_b0_ns_problem_only.pt', '.'),
+    ('segment.pt', '.'),
+    ('ns_ok.pt', '.'),
+    ('ok_regressor_hgbr.joblib', '.'),
+    ('best_tf_efficientnet_b0_ns_problem_only.pt', '.'),
 ]
 datas += qt_datas
 
