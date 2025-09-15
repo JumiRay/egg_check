@@ -2,7 +2,7 @@ venv/
 dist/
 build/
 __pycache__/
-*.spec
 *.log
 *.tmp
 .DS_Store
+.idea
