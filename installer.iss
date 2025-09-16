@@ -1,6 +1,6 @@
 #define MyAppName "Egg Inspector"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Your Team"
+#define MyAppPublisher "Miller Zhou"
 #define MyAppExeName "EggInspector.exe"
 
 [Setup]
