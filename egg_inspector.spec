@@ -6,38 +6,35 @@ from PySide6.QtCore import QLibraryInfo
 
 entry = "main.py"
 
-# PySide6 资源
+# ---- 依赖收集 ----
 qt_datas  = collect_data_files('PySide6', include_py_files=True)
 qt_hidden = collect_submodules('PySide6')
 
-# 其他库隐藏导入
 ultra_hidden = collect_submodules('ultralytics')
 timm_hidden  = collect_submodules('timm')
 torch_hidden = collect_submodules('torch')
 tv_hidden    = collect_submodules('torchvision')
 ta_hidden    = collect_submodules('torchaudio')
 
-# 模型/权重文件 —— 都在根目录
+# 你的模型文件（在根目录）
 datas = [
-    ('segment.pt', '.'),   # YOLO 模型
-    ('ns_ok.pt', '.'),     # OK 分类模型
-    ('ok_regressor_hgbr.joblib', '.'),  # 回归模型
-    ('best_tf_efficientnet_b0_ns_problem_only.pt', '.'),  # 问题蛋模型
+    ('segment.pt', '.'),
+    ('ns_ok.pt', '.'),
+    ('ok_regressor_hgbr.joblib', '.'),
+    ('best_tf_efficientnet_b0_ns_problem_only.pt', '.'),
 ]
 
-# Qt 插件和 QML（有些不用，但打进去更稳）
+# 只添加 Qt 平台插件/样式（QML 相关不再强制加入）
 qt_plugins_dir = QLibraryInfo.path(QLibraryInfo.PluginsPath)
-qt_qml_dir     = QLibraryInfo.path(QLibraryInfo.QmlImportsPath)
+
+def add_dir_if_exists(src_dir, dst_rel):
+    if os.path.isdir(src_dir):
+        return [(src_dir, dst_rel)]
+    return []
 
 datas += qt_datas
-datas += [
-    (os.path.join(qt_plugins_dir, 'platforms'), 'PySide6/plugins/platforms'),
-    (os.path.join(qt_plugins_dir, 'styles'),    'PySide6/plugins/styles'),
-    (os.path.join(qt_qml_dir, 'QtQuick'),       'PySide6/qml/QtQuick'),
-    (os.path.join(qt_qml_dir, 'QtQuick.2'),     'PySide6/qml/QtQuick.2'),
-    (os.path.join(qt_qml_dir, 'QtQuick', 'Controls'), 'PySide6/qml/QtQuick/Controls'),
-    (os.path.join(qt_qml_dir, 'QtQuick', 'Controls', 'Basic'), 'PySide6/qml/QtQuick/Controls/Basic'),
-]
+datas += add_dir_if_exists(os.path.join(qt_plugins_dir, 'platforms'), 'PySide6/plugins/platforms')
+datas += add_dir_if_exists(os.path.join(qt_plugins_dir, 'styles'),    'PySide6/plugins/styles')
 
 binaries = []
 hiddenimports = qt_hidden + ultra_hidden + timm_hidden + torch_hidden + tv_hidden + ta_hidden
@@ -53,7 +50,12 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['tensorflow','onnx','onnxruntime','torch.backends.cuda','torch.cuda'],
+    excludes=[
+        'tensorflow','onnx','onnxruntime',
+        'torch.backends.cuda','torch.cuda',
+        'torch.utils.tensorboard',     # ← 避免 tensorboard 警告
+        'torchaudio.prototype',        # ← 可选，减少无关告警
+    ],
     noarchive=False,
 )
 
@@ -67,7 +69,7 @@ exe = EXE(
     debug=False,
     strip=False,
     upx=False,
-    console=False,  # 改 True 会有黑框调试日志
+    console=False,  # 需要黑框日志可改 True
     icon=None
 )
 
