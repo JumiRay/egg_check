@@ -29,9 +29,10 @@ jobs:
           pip install ultralytics==8.2.50 shapely==2.0.4
 
       - name: Clean build dirs
+        shell: pwsh
         run: |
-          rmdir /S /Q build || exit 0
-          rmdir /S /Q dist  || exit 0
+          if (Test-Path build) { Remove-Item -Recurse -Force build }
+          if (Test-Path dist)  { Remove-Item -Recurse -Force dist  }
 
       - name: Build with PyInstaller
         run: |
