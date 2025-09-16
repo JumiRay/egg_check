@@ -30,8 +30,24 @@ jobs:
       - name: Build with PyInstaller
         run: pyinstaller egg_inspector.spec
 
-      - name: Upload artifact
+      # 可选：把 onedir 目录版也作为工件上传，便于调试
+      - name: Upload onedir artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EggInspector-windows
+          name: EggInspector-windows-onedir
           path: dist/EggInspector/**
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      # 关键修改：用 PowerShell 的 & 调用带空格路径，并给 .iss 也加引号
+      - name: Build installer with Inno Setup
+        run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "$env:GITHUB_WORKSPACE\installer.iss"'
+
+      # 你的 installer.iss 里 OutputDir=.
+      # 所以生成的安装包在仓库根目录：EggInspector_Setup.exe
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: EggInspector-Setup
+          path: EggInspector_Setup.exe
